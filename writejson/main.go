@@ -1,15 +1,36 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
+	"os"
 )
 
 type song struct {
-	Name   string
-	Author string
+	Name   string `json:"name"`
+	Author string `json:"author"`
 }
 
 var name, aut, op string
+
+func savePlaylist(playlist []song) {
+	fi, err := os.Create("my_playlist.json") // read access
+	if err != nil {
+		log.Fatal(err)
+	}
+	json.NewEncoder(fi).Encode(playlist)
+	defer fi.Close()
+}
+
+func LoadPlaylist(playlist *[]song) {
+	fi, err := os.Open("my_playlist.json") // read access
+	if err != nil {
+		log.Fatal(err)
+	}
+	json.NewDecoder(fi).Decode(playlist)
+	defer fi.Close()
+}
 
 func addSong(playlist *[]song) []song {
 	fmt.Println("Enter Song Name : ")
@@ -56,6 +77,10 @@ func Operation(playlist *[]song) {
 			rmSong(playlist)
 		} else if op == "ls" {
 			lsSong(*playlist)
+		} else if op == "save" {
+			savePlaylist(*playlist)
+		} else if op == "load" {
+			LoadPlaylist(playlist)
 		} else {
 			fmt.Println("There is no such a Operation Try Again")
 			cnt += 1
